@@ -25,14 +25,16 @@ type generator struct {
 	packageName   string
 	removeSources bool
 	filesArgs     []string
+	outputPath    string
 }
 
 func run() error {
 	flagPackage := flag.String("p", "", "Package name to be written into result file. Required")
+	flagOutput := flag.String("o", "", "Output file")
 	flagDeleteSource := flag.Bool("d", false, "Delete source files after bundling")
 
 	flag.Usage = func() {
-		fmt.Fprint(flag.CommandLine.Output(), "Usage: bundle -p <package_name> [-d] pattern... \n")
+		fmt.Fprint(flag.CommandLine.Output(), "Usage: bundle -p <package_name> [-d -o] pattern... \n")
 		fmt.Fprint(flag.CommandLine.Output(), "Available options:\n")
 		flag.PrintDefaults()
 	}
@@ -54,9 +56,22 @@ func run() error {
 		packageName:   *flagPackage,
 		removeSources: *flagDeleteSource,
 		filesArgs:     argsFiles,
+		outputPath:    *flagOutput,
 	}
 
-	return g.makeBundle(os.Stdout)
+	w := os.Stdout
+
+	var err error
+	if g.outputPath != "" {
+		w, err = os.Create(g.outputPath)
+		if err != nil {
+			return err
+		}
+
+		defer w.Close()
+	}
+
+	return g.makeBundle(w)
 }
 
 func (g generator) makeBundle(w io.Writer) error {
