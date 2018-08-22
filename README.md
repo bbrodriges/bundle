@@ -69,6 +69,6 @@ The above code upon calling `go generate .` will:
 # Limitations
 
 * bundle cannot handle definition conflicts (e.g. structs, functions, constants of the same names)
-* bundle cannot handle import cicle conflicts
+* bundle cannot handle import cycle conflicts
 
 All it does is collects and strips out import declarations from every given source files AST and concats them into single file with helping comments.
